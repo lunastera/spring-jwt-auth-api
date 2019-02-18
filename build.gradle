@@ -1,0 +1,79 @@
+buildscript {
+    ext {
+        kotlinVersion = '1.2.71'
+        springBootVersion = '2.1.3.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        // org.springframework.boot:spring-boot-gradle-pluginの役割
+        // 1. executable jarを作るための bootRepackage タスクが追加され、jar タスクの後に自動的に実行されるようになる。
+        // 2. bootRun タスクが追加される。
+        // 3. dependencies のうち、Springが管理されるものはバージョンの記述が不要になる。
+
+        // org.jetbrains.kotlin:kotlin-gradle-pluginの役割
+        // 多分これ入れてるとpluginのorg.jetbrains.kotlin.<...>系がいらなくなる？
+        // https://kotlinlang.org/docs/reference/using-gradle.html
+
+        // org.jetbrains.kotlin:kotlin-allopen の役割
+        // 任意のアノテーション (ユーザーにて指定できます) が付いているクラスのメンバーに、暗黙的に open 修飾子を付与
+
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+    }
+}
+
+// なんかapply pluginよりplugins推奨されてるらしい？(2019/02/18時点
+// build.gradle.kts的にもこっちのほうがいいらしい
+plugins {
+	id 'org.jetbrains.kotlin.jvm' version '1.2.71'
+    id 'org.jetbrains.kotlin.plugin.spring' version '1.2.71'
+    id 'org.springframework.boot' version '2.1.3.RELEASE'
+	id "io.spring.dependency-management" version "1.0.6.RELEASE"
+}
+
+group = 'com.github.sobreera'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjsr305=strict']
+        jvmTarget = '1.8'
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjsr305=strict']
+        jvmTarget = '1.8'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+
+    // Swagger
+    implementation("io.springfox:springfox-swagger2:2.8.0")
+    implementation("io.springfox:springfox-swagger-ui:2.8.0")
+    implementation("io.springfox:springfox-core:2.8.0")
+
+    // Jackson
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // Json Web Token
+    implementation("io.jsonwebtoken:jjwt:0.9.0")
+
+    // Kotlin
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
