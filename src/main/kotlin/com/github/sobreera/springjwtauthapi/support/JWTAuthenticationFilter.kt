@@ -3,6 +3,7 @@ package com.github.sobreera.springjwtauthapi.support
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.sobreera.springjwtauthapi.controller.form.UserForm
 import com.github.sobreera.springjwtauthapi.support.SecurityConstants.AUTH_HEADER
+import com.github.sobreera.springjwtauthapi.support.SecurityConstants.EXPIRATION_TIME
 import com.github.sobreera.springjwtauthapi.support.SecurityConstants.LOGIN_ID
 import com.github.sobreera.springjwtauthapi.support.SecurityConstants.LOGIN_URL
 import com.github.sobreera.springjwtauthapi.support.SecurityConstants.PASSWORD
@@ -25,8 +26,8 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 class JWTAuthenticationFilter(
-    authenticationManager: AuthenticationManager,
-    bCryptPasswordEncoder: BCryptPasswordEncoder
+    val authenticationM: AuthenticationManager,
+    val bCryptPasswordE: BCryptPasswordEncoder
 ): UsernamePasswordAuthenticationFilter() {
     init {
         // ログイン用のpath変更
@@ -41,11 +42,13 @@ class JWTAuthenticationFilter(
     override fun attemptAuthentication(req: HttpServletRequest?, res: HttpServletResponse?): Authentication {
         try {
             // requestパラメータからユーザ情報読み取り
-            val user = ObjectMapper().readValue(req?.inputStream, UserForm::class.java)
-            return authenticationManager.authenticate(
+            val user = ObjectMapper().readValue(req?.inputStream, UserForm::class.javaObjectType)
+
+            println("STACK TRACE::: NAME=${user.username}, PASS=${user.password}")
+            return authenticationM.authenticate(
                 UsernamePasswordAuthenticationToken(
-                    user.name,
-                    user.pass,
+                    user.username,
+                    user.password,
                     ArrayList()
                 )
             )
@@ -58,9 +61,9 @@ class JWTAuthenticationFilter(
     // 認証に成功
     override fun successfulAuthentication(req: HttpServletRequest?, res: HttpServletResponse?, chain: FilterChain?, authResult: Authentication?) {
         val token: String = Jwts.builder()
-                .setSubject((authResult?.principal as User).username)
-                .setExpiration(Date())
-                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .setSubject((authResult?.principal as User).authorities.first().authority)  // permissionを取得してみる
+                .setExpiration(Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(SignatureAlgorithm.HS512, SECRET.toByteArray())
                 .compact()
         res?.addHeader(AUTH_HEADER, TOKEN_PREFIX + token)
     }

@@ -1,17 +1,12 @@
 package com.github.sobreera.springjwtauthapi.controller
 
-import com.github.sobreera.springjwtauthapi.controller.form.UserForm
-import com.github.sobreera.springjwtauthapi.service.UserService
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
-import javax.validation.Valid
 
 @RestController
 //@RequestMapping("")
-class UserController(
-    private val userService: UserService
-) {
+class UserController() {
 
     @GetMapping("/{id}")
     fun publicData(@PathVariable id: String): PublicData {
@@ -21,7 +16,10 @@ class UserController(
     @GetMapping("/{id}/private")
     fun privateData(@PathVariable id: String): PrivateData {
         val authentication: Authentication = SecurityContextHolder.getContext().authentication
-        TODO()
+
+        // JWTAuthenticationFilter#successfulAuthenticationで設定したパーミッションを取り出してみる
+        val permission: String = authentication.principal.toString()
+        return PrivateData("hoge", permission)
     }
 
     data class PublicData(

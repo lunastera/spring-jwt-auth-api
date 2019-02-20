@@ -2,11 +2,11 @@ package com.github.sobreera.springjwtauthapi.controller.form
 
 import org.springframework.security.crypto.password.PasswordEncoder
 
-data class UserForm(
-    val name: String,
-    val pass: String
-) {
-    fun encrypt(encoder: PasswordEncoder): String {
-        return encoder.encode(pass)
+class UserForm {
+    var username: String? = null
+    var password: String? = null
+
+    fun encrypt(encoder: PasswordEncoder) {
+        password = encoder.encode(password)
     }
 }
