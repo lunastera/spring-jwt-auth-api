@@ -27,7 +27,7 @@ class WebSecurityConfig(
                 .anyRequest().authenticated()
                 .and().logout()
                 .and().csrf().disable()
-                .addFilter(JWTAuthenticationFilter(authenticationManager(), bCryptPasswordEncoder()))
+                .addFilter(JWTAuthenticationFilter(authenticationManager()))
                 .addFilter(JWTAuthorizationFilter(authenticationManager()))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
     }

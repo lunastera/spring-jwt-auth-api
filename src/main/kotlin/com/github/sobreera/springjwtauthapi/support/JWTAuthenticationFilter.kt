@@ -15,7 +15,6 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.User
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import java.io.IOException
@@ -26,14 +25,16 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 class JWTAuthenticationFilter(
-    val authenticationM: AuthenticationManager,
-    val bCryptPasswordE: BCryptPasswordEncoder
+    private val authenticationM: AuthenticationManager
 ): UsernamePasswordAuthenticationFilter() {
+
+    private val objectMapper: ObjectMapper = ObjectMapper()
+
     init {
         // ログイン用のpath変更
         setRequiresAuthenticationRequestMatcher(AntPathRequestMatcher(LOGIN_URL, "POST"))
 
-        // ログイン用ID/PWのパラメータ名変更
+        // リクエスト時のID/PWのパラメータ名変更
         usernameParameter = LOGIN_ID
         passwordParameter = PASSWORD
     }
@@ -42,12 +43,11 @@ class JWTAuthenticationFilter(
     override fun attemptAuthentication(req: HttpServletRequest?, res: HttpServletResponse?): Authentication {
         try {
             // requestパラメータからユーザ情報読み取り
-            val user = ObjectMapper().readValue(req?.inputStream, UserForm::class.javaObjectType)
+            val user = objectMapper.readValue(req?.inputStream, UserForm::class.java)
 
-            println("STACK TRACE::: NAME=${user.username}, PASS=${user.password}")
             return authenticationM.authenticate(
                 UsernamePasswordAuthenticationToken(
-                    user.username,
+                    user.userId,
                     user.password,
                     ArrayList()
                 )
@@ -61,7 +61,7 @@ class JWTAuthenticationFilter(
     // 認証に成功
     override fun successfulAuthentication(req: HttpServletRequest?, res: HttpServletResponse?, chain: FilterChain?, authResult: Authentication?) {
         val token: String = Jwts.builder()
-                .setSubject((authResult?.principal as User).authorities.first().authority)  // permissionを取得してみる
+                .setSubject((authResult?.principal as User).username)   // subは個人を特定できる情報がよい
                 .setExpiration(Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET.toByteArray())
                 .compact()

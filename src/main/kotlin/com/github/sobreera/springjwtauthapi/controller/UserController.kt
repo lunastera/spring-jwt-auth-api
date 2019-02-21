@@ -5,29 +5,25 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
-//@RequestMapping("")
 class UserController() {
 
-    @GetMapping("/{id}")
-    fun publicData(@PathVariable id: String): PublicData {
-        return PublicData("pubic")
+    @GetMapping("/{userId}")
+    fun publicData(@PathVariable userId: String): ResponseData {
+        return ResponseData(userId, "pubic")
     }
 
-    @GetMapping("/{id}/private")
-    fun privateData(@PathVariable id: String): PrivateData {
+    @GetMapping("/{userId}/private")
+    fun privateData(@PathVariable userId: String): ResponseData {
         val authentication: Authentication = SecurityContextHolder.getContext().authentication
 
-        // JWTAuthenticationFilter#successfulAuthenticationで設定したパーミッションを取り出してみる
-        val permission: String = authentication.principal.toString()
-        return PrivateData("hoge", permission)
+        // JWTAuthenticationFilter#successfulAuthenticationで設定したユーザ名取ってくる
+        val username: String = authentication.principal.toString()
+        // この辺でなんか適当にユーザ検索して持ってくればいいと思う
+        return ResponseData(username, "private")
     }
 
-    data class PublicData(
-        val name: String
-    )
-
-    data class PrivateData(
+    data class ResponseData(
         val name: String,
-        val permission: String
+        val desc: String
     )
 }

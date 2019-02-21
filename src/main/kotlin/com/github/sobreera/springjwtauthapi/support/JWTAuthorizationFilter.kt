@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 class JWTAuthorizationFilter(
-        authenticationManager: AuthenticationManager
+    authenticationManager: AuthenticationManager
 ): BasicAuthenticationFilter(authenticationManager) {
 
     override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, chain: FilterChain) {
