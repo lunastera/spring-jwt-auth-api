@@ -23,8 +23,9 @@ class WebSecurityConfig(
     override fun configure(http: HttpSecurity?) {
         http!!.cors()
                 .and().authorizeRequests()
-                .antMatchers("/{id}", LOGIN_URL).permitAll()
-                .anyRequest().authenticated()
+                    .antMatchers("/{userId}", LOGIN_URL).permitAll()
+                    .antMatchers("/{userId}/private").hasAuthority("ROLE_USER")
+                    .anyRequest().authenticated()   // TODO(この記述のせいで存在しないリソースもJWTAuthorizationFilterを通り403エラーとなってしまう)
                 .and().logout()
                 .and().csrf().disable()
                 .addFilter(JWTAuthenticationFilter(authenticationManager()))

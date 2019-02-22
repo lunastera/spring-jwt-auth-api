@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class UserController() {
 
-    @GetMapping("/{userId}")
+    @RequestMapping("/{userId}", method = [RequestMethod.GET])
     fun publicData(@PathVariable userId: String): ResponseData {
         return ResponseData(userId, "pubic")
     }
 
-    @GetMapping("/{userId}/private")
+    @RequestMapping("/{userId}/private", method = [RequestMethod.GET])
     fun privateData(@PathVariable userId: String): ResponseData {
         val authentication: Authentication = SecurityContextHolder.getContext().authentication
 
