@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@RequestMapping("/user")
 class UserController() {
 
     @RequestMapping("/{userId}", method = [RequestMethod.GET])

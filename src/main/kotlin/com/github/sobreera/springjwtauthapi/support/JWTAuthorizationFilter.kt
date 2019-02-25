@@ -18,7 +18,7 @@ class JWTAuthorizationFilter(
 
     override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, chain: FilterChain) {
         val header: String? = req.getHeader(AUTH_HEADER)
-        println("DEBUG-LOG:::::: doFilterInternal")
+        println("[DEBUG] doFilterInternal |> ${req.requestURI}")
 
         if (header == null || !header.startsWith(TOKEN_PREFIX)) {
             chain.doFilter(req, res)

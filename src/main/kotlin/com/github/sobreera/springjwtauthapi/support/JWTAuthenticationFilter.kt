@@ -42,7 +42,6 @@ class JWTAuthenticationFilter(
     // 認証フロー
     override fun attemptAuthentication(req: HttpServletRequest?, res: HttpServletResponse?): Authentication {
         try {
-            println("DEBUG-LOG:::::: attemptAuthentication")
             // requestパラメータからユーザ情報読み取り
             val user = objectMapper.readValue(req?.inputStream, UserForm::class.java)
 

@@ -20,11 +20,23 @@ class WebSecurityConfig(
         @Autowired val userDetailsService: UserDetailsService
 ): WebSecurityConfigurerAdapter() {
 
+    private val AUTH_WHITELIST = arrayOf(
+        // -- swagger ui
+        "/swagger-resources/**",
+        "/swagger-ui.html",
+        "/v2/api-docs",
+        "/webjars/**",
+        // Login
+        LOGIN_URL,
+        // Other
+        "/user/{userId}"
+    )
+
     override fun configure(http: HttpSecurity?) {
         http!!.cors()
                 .and().authorizeRequests()
-                    .antMatchers("/{userId}", LOGIN_URL).permitAll()
-                    .antMatchers("/{userId}/private").hasAuthority("ROLE_USER")
+                    .antMatchers(*AUTH_WHITELIST).permitAll()
+                    .antMatchers("/user/{userId}/private").hasAuthority("ROLE_USER")
                     .anyRequest().authenticated()   // TODO(この記述のせいで存在しないリソースもJWTAuthorizationFilterを通り403エラーとなってしまう)
                 .and().logout()
                 .and().csrf().disable()
